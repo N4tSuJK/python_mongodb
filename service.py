@@ -15,6 +15,8 @@ parser.add_argument('information')
 
 db = client.admin.cpe_company_limited
 
+#User Registration (insert new data if ID never use and update data instead if ID already in database) 
+#retuen firstname
 class Registration(Resource):
 	def post(self):
 		args = parser.parse_args()
@@ -22,6 +24,10 @@ class Registration(Resource):
 		db.update_one({"id":data['id']},{'$set':{"id":data['id'],"firstname":data['firstname'],"lastname":data['lastname'],"password":data['password']}},upsert=True)
 		return {'firstname': data['firstname']}
 
+
+#Login with ID and Password and insert clock in time 
+#return error if ID or password is incorrect
+#return firstname and status if successful
 class Login(Resource):
 	def post(self):
 		args = parser.parse_args()
@@ -30,10 +36,12 @@ class Login(Resource):
 		print result
 		print datetime.now()
 		if result is None:
-			return {'Error': 'id or password incorrect'}
+			return {'Error': 'ID or Password is incorrect'}
 		db.update({ "id":data['id']},{'$push': {'list_work': {'datetime':datetime.now().strftime("%d-%m-%Y %H:%M:%S")}}})
 		return {'firstname': result['firstname'],'Status':'Login Successful!'}
 
+#Check clock in time of user by ID  
+#return firstname and datetime
 class CheckListWork(Resource):
 	def post(self):
 		args = parser.parse_args()
